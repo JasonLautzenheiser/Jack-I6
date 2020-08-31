@@ -1,0 +1,107 @@
+Constant Story "Jack";
+Constant Headline "^An Interactive Horror by Jason Lautzenheiser^";
+Include "Parser";
+Include "Verblib";
+
+!--------------------
+!- Player Character
+!--------------------
+Object myselfobj "(self object)"
+  with 
+    name 'Jack' 'you' 'body',
+    short_name "yourself",
+    described,
+    hiding,
+    description [;
+        print "You are very tall.  You are wearing overalls and a flannel shirt.  
+        Straw slowly falls from your sleeves and pants leaving a trail
+        behind as you walk. ";
+        if (self.described == false) {
+            print "^^As you raise your hands to your heavy head and move to run 
+                your hands through your hair, you feel nothing but a cool, hard 
+                shell of a pumpkin.";
+            self.described = true;
+         };
+         print_ret "";
+    ],
+  has concealed animate proper transparent male;
+
+!--------------------
+!- Rooms
+!--------------------
+Object PumpkinPatch "In the Pumpkin Patch"
+    with name 'pumpkin patch' 'patch', 
+        description
+            "You are standing in a middle of a pumpkin patch.   
+            The light from the full moon allows you to see some distance 
+            around you.  The pumpkin patch goes on in all directions except 
+            to the south where you can make the outline of a road.",
+        s_to Road,
+    has light;
+
+Object Road "Road"    
+    with description [;
+            if (myselfobj.hiding)
+                print "You are lying in the ditch along side the road.  
+                    In the darkness, you probably look like nothing more than another pumpkin 
+                    amongst thousands.";
+            else 
+                print "You are standing in the middle of a dirt road to the south of a
+                    large field of pumpkins.  Along the north side of the road is a shallow ditch.  
+                    The road stretches on to the east and west.";
+            if (self hasnt visited) {
+                StartTimer(self, 2);
+                "^^Looking up the road, you see a set of [headlights]
+                    headed in your direction.  Something screams in your very soul that you need to hide,
+                    you don't think it would be wise to be caught in the open in your state.";  
+            }
+        ],
+        n_to PumpkinPatch,
+        time_left,
+        time_out [;
+            if (myselfobj.hiding) {
+                myselfobj.hiding = false;
+                "You're safe";
+            }
+            else {
+                deadflag = true;
+                if (location == Road) {
+                    "As the car gets closer to you it suddenly accelerates.  
+                    Before you can react, it barrels into you.  Your body, 
+                    made mostly of straw flys apart scattering straw everywhere. 
+                    The last thing you remember before the light dims from your 
+                    eyes is your large pumpkin head bouncing off the windshield 
+                    and onto the road shattering into thousands of pieces.";
+                } else if (location == PumpkinPatch) {
+                    "As the car slows down you hear someone yell, 'There he is....
+                    old Jack is still in the pumpkin patch.'  You hear the sound of
+                    gun fire and something whistles pass your head.  You take off 
+                    running as more shots whizz close.  Just as you think you may 
+                    get away, one slams into the back of your head.  As the light 
+                    dims from your eyes, your last thought was 'Next year....'.";
+                }
+            }
+
+        ],
+    has light;
+
+[Initialise;
+    location = PumpkinPatch;
+    player = myselfobj;
+    "Suddenly awareness comes to you.  You look around slowly, 
+    seeing nothing at first, then in the moon light you find 
+    yourself in the middle of a pumpkin patch.   Looking down at
+    your feet there is straw coming out of the bottom of your 
+    pants and falling over your boots.  In wonderment you notice 
+    your hands for the first time and see straw coming out of your 
+    sleeves as well.  As you stare at your hands you notice a 
+    strange glow seemingly coming from within you.  You start to run 
+    your fingers through your hair only to realize you have none.  
+    As you stand there in shock over what you've become you realize you 
+    have nothing but vague memories of a time before the pumpkin patch.  
+    You look around and see large pumpkins that seem to have the same 
+    shape as your head.  It all comes flooding back to you.....
+    you are Jack....Jack Halloween. ";
+];
+
+Include "Grammar"; 

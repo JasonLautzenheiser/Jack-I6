@@ -29,6 +29,15 @@ Object myselfobj "(self object)"
 !--------------------
 !- Rooms
 !--------------------
+Object Neverland "Neverland" 
+    with description "should never see this"; 
+
+Object -> hubcap "hubcap"
+    with description
+        "Really nothing more than a rusty piece of metal that was loosly 
+        attached to the wheel of the car.  It is flat and looks like if 
+        you threw it like a frisbee it would go a great distance.";
+
 Object PumpkinPatch "In the Pumpkin Patch"
     with name 'pumpkin patch' 'patch', 
         description
@@ -61,19 +70,28 @@ Object Road "Road"
         time_out [;
             if (myselfobj.hiding) {
                 myselfobj.hiding = false;
-                "You're safe";
+                move hubcap to myselfobj;
+                 "The car drives slowly down the road just feet from where you are lying down.
+                  Two boys hang out the side window with shotguns at the ready.^^You hear one of 
+                  them say 'I swear I saw something standing around here somewhere.'^^'You just had 
+                  too much beer before we left, Joe.  You're so drunk you wouldn't notice old 
+                  Jack standing right next to you,'  someone yelled from inside the car.^^The car 
+                  slides a bit further down the road, turns around and then heads back the way it 
+                  came.^^As the car flies back up the road one of its hubcaps comes off and lands 
+                  in the ditch just ahead of you.  You reach over and pick it up.";
+
             }
             else {
-                deadflag = true;
+                deadflag = 3;
                 if (location == Road) {
-                    "As the car gets closer to you it suddenly accelerates.  
+                    "^As the car gets closer to you it suddenly accelerates.  
                     Before you can react, it barrels into you.  Your body, 
                     made mostly of straw flys apart scattering straw everywhere. 
                     The last thing you remember before the light dims from your 
                     eyes is your large pumpkin head bouncing off the windshield 
                     and onto the road shattering into thousands of pieces.";
                 } else if (location == PumpkinPatch) {
-                    "As the car slows down you hear someone yell, 'There he is....
+                    "^As the car slows down you hear someone yell, 'There he is....
                     old Jack is still in the pumpkin patch.'  You hear the sound of
                     gun fire and something whistles pass your head.  You take off 
                     running as more shots whizz close.  Just as you think you may 
@@ -84,6 +102,20 @@ Object Road "Road"
 
         ],
     has light;
+
+Object -> Ditch "ditch"
+    with description
+        "The ditch is very shallow, not much more than an light 
+        impression along the road.  Pumpkin vines from the field 
+        have encrouched slightly into the ditch.",
+    has container light;
+
+[ DeathMessage;
+      if (deadflag == 3) 
+          print "Thus ends this halloween.....the town wins again and 
+          poor Jack Halloween waits another year for his revenge upon 
+          the town";
+];
 
 [Initialise;
     location = PumpkinPatch;

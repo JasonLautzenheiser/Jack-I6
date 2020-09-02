@@ -4,6 +4,12 @@ Include "Parser";
 Include "Verblib";
 
 !--------------------
+!- Constants and Globals
+!--------------------
+
+Global p_past_road_car = false;
+
+!--------------------
 !- Player Character
 !--------------------
 Object myselfobj "(self object)"
@@ -50,6 +56,9 @@ Object PumpkinPatch "In the Pumpkin Patch"
 
 Object Road "Road"    
     with description [;
+            if (Road hasnt visited) {
+                StartDaemon(self);
+            };
             if (myselfobj.hiding)
                 print "You are lying in the ditch along side the road.  
                     In the darkness, you probably look like nothing more than another pumpkin 
@@ -60,6 +69,7 @@ Object Road "Road"
                     The road stretches on to the east and west.^";
         ],
         n_to PumpkinPatch,
+        e_to EdgeOfTown,
         cant_go [;
             if (myselfobj.hiding) {
                 myselfobj.hiding = false;
@@ -74,16 +84,24 @@ Object Road "Road"
                     myselfobj.hiding = false;
                     print "You get up out of the ditch first.^";
                     rfalse;
+                };
+                if (noun == e_to && p_past_road_car ~= true) {
+                    deadflag = 3;
+                    print "As you begin to head east towards the town, the car suddenly
+                     accelerates. Before you can react, it barrels into you.  Your body, 
+                     made mostly of straw flys apart scattering straw everywhere.  The last 
+                     thing you remember before the light dims from your eyes is your large pumpkin 
+                     head bouncing off the windshield and onto the road only shatter 
+                     into thousands of pieces.";
+                     rtrue;
                 }
-        ],
-        each_turn [;
-            StartDaemon(self);
         ],
         turns_active,
         daemon [;
             if (myselfobj.hiding)
             {
                 self.turns_active=0; StopDaemon(self);
+                p_past_road_car = true;
                 myselfobj.hiding = false;
                 move hubcap to myselfobj;
                 print "^The car drives slowly down the road just feet from where you are lying down.
@@ -147,8 +165,26 @@ Object Road "Road"
                 have encrouched slightly into the ditch.",
         has container enterable open scenery light;
 
+Object EdgeOfTown "Edge of Town"
+    with description [;
+        print "You have come to the edge of town.  A tall chainlink fence 
+        stretches on either side of the road as far as you can see.  The road continues
+        to the east into the center of town.^";
+         if (EdgeOfTown hasnt visited) { 
+            "^As you come closer you see some movement near the barrier across the 
+            road and you quickly crouch in the shadows not wanting to be seen.  A 
+            moment later you see the movement again and you can just make out 
+            someone patrolling back and forth across the road.  There is no way to get around 
+            him without being seen.  Perhaps you could distract him somehow.";
+         };
+         if (PickupTruck.location == EdgeOfTown)
+            "There is a pickup truck sitting along the road.";
+    ],
+    has light;
 
-
+    Object -> PickupTruck "pickup truck"
+        with name "truck" "pickup",
+            description "The rusty blue Ford truck sitting along the edge of the road has seen better days.";
 !--------------------
 !- Routines
 !--------------------

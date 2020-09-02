@@ -104,20 +104,14 @@ Object Road "Road"
     has light;
 
 Object -> Ditch "ditch"
-    with name "ditch" 
+    with name "ditch", 
         description
             "The ditch is very shallow, not much more than an light 
             impression along the road.  Pumpkin vines from the field 
             have encrouched slightly into the ditch.",
     has container enterable open scenery light;
 
-!--------------------
-!- New Verbs
-!--------------------
-[ XyzzySub; "Though you can't speak, a rumble arises from deep within 
-your chest.  The glow coming from your eyes briefly increases then just 
-as quickly fades away."; ];
-Verb 'xyzzy' 'plugh' 'frotz' 'plover' 'trizbort' * -> Xyzzy;
+
 
 !--------------------
 !- Routines
@@ -149,3 +143,44 @@ Verb 'xyzzy' 'plugh' 'frotz' 'plover' 'trizbort' * -> Xyzzy;
 ];
 
 Include "Grammar"; 
+
+!--------------------
+!- New Verbs
+!--------------------
+Verb 'hide' 
+    * -> Hide
+    * container -> Hide
+    * 'in' container -> Hide;
+
+
+Verb 'lay'
+    * 'in' container -> Hide
+    * 'down' 'in' container -> Hide
+    * 'down' -> Hide;
+
+Extend 'lie' first
+    * 'down' -> Hide
+    * 'in' container -> Hide
+    * 'down' 'in' container -> Hide;
+
+[HideSub; 
+    if (myselfobj.hiding) {
+        "You are already hiding.";
+    }
+
+    if (location ~= Road) {
+        if (noun == nothing) {
+            "You lie down for a bit but you feel something drawing
+            you onward so you quickly get up.";
+        }
+    }
+    else  {
+        myselfobj.hiding = true;
+        "You lie down in the ditch along the road.";
+    }
+];
+
+Verb 'xyzzy' 'plugh' 'frotz' 'plover' 'trizbort' * -> Xyzzy;
+[ XyzzySub; "Though you can't speak, a rumble arises from deep within 
+your chest.  The glow coming from your eyes briefly increases then just 
+as quickly fades away."; ];

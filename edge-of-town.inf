@@ -1,0 +1,20 @@
+Object EdgeOfTown "Edge of Town"
+    with description [;
+        print "You have come to the edge of town.  A tall chainlink fence 
+        stretches on either side of the road as far as you can see.  The road continues
+        to the east into the center of town.^";
+         if (EdgeOfTown hasnt visited) { 
+            "^As you come closer you see some movement near the barrier across the 
+            road and you quickly crouch in the shadows not wanting to be seen.  A 
+            moment later you see the movement again and you can just make out 
+            someone patrolling back and forth across the road.  There is no way to get around 
+            him without being seen.  Perhaps you could distract him somehow.";
+         };
+         if (PickupTruck.location == EdgeOfTown)
+            "There is a pickup truck sitting along the road.";
+    ],
+    has light;
+
+    Object -> PickupTruck "pickup truck"
+        with name "truck" "pickup",
+            description "The rusty blue Ford truck sitting along the edge of the road has seen better days.";

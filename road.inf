@@ -1,0 +1,111 @@
+Object Road "Road"    
+    with description [;
+            if (Road hasnt visited) {
+                StartDaemon(self);
+            };
+            if (myselfobj.hiding)
+                print "You are lying in the ditch along side the road.  
+                    In the darkness, you probably look like nothing more than another pumpkin 
+                    amongst thousands.^";
+            else 
+                print "You are standing in the middle of a dirt road to the south of a
+                    large field of pumpkins.  Along the north side of the road is a shallow ditch.  
+                    The road stretches on to the east and west.^";
+        ],
+        n_to PumpkinPatch,
+        e_to EdgeOfTown,
+        cant_go [;
+            if (myselfobj.hiding) {
+                myselfobj.hiding = false;
+                "You get out of the ditch and are now standing in the road again.";
+            } else {
+                "^You feel a strong urge to head towards the town in the east.";
+            }
+        ],
+        before [;
+            Go:
+                if (myselfobj.hiding) {
+                    myselfobj.hiding = false;
+                    print "You get up out of the ditch first.^";
+                    rfalse;
+                };
+                if (noun == e_to && p_past_road_car ~= true) {
+                    deadflag = 3;
+                    print "As you begin to head east towards the town, the car suddenly
+                     accelerates. Before you can react, it barrels into you.  Your body, 
+                     made mostly of straw flys apart scattering straw everywhere.  The last 
+                     thing you remember before the light dims from your eyes is your large pumpkin 
+                     head bouncing off the windshield and onto the road only shatter 
+                     into thousands of pieces.";
+                     rtrue;
+                }
+        ],
+        turns_active,
+        daemon [;
+            if (myselfobj.hiding)
+            {
+                self.turns_active=0; StopDaemon(self);
+                p_past_road_car = true;
+                myselfobj.hiding = false;
+                move hubcap to myselfobj;
+                print "^The car drives slowly down the road just feet from where you are lying down.
+                  Two boys hang out the side window with shotguns at the ready.^^You hear one of 
+                  them say 'I swear I saw something standing around here somewhere.'^^'You just had 
+                  too much beer before we left, Joe.  You're so drunk you wouldn't notice old 
+                  Jack standing right next to you,'  someone yelled from inside the car.^^The car 
+                  slides a bit further down the road, turns around and then heads back the way it 
+                  came.^^As the car flies back up the road one of its hubcaps comes off and lands 
+                  in the ditch just ahead of you.  You reach over and pick it up.^";
+                rtrue;
+            };
+            switch (++(self.turns_active)) {
+                1: if (location == Road) {
+                        "^Looking up the road, you see a set of headlights
+                        headed in your direction.  Something screams in your very soul that you need to hide,
+                        you don't think it would be wise to be caught in the open in your state.";
+                    };
+
+                2: if (location == Road) {
+                        "^The headlights are coming closer and you can now hear the 
+                        low rumble of a car with a rusty exhaust.";
+                    } else if (location == PumpkinPatch) {
+                        "^From the road you can hear the low rumble of a rusty exhaust as 
+                        a car comes closer.";
+                    };
+
+                3: if (location == Road) {
+                        "^The car's headlights are looming large and you can hear 
+                        the passengers in the car hollering 'There he is...There's old Jack.'";
+                    } else if (location == PumpkinPatch) {
+                        "^The sound of the car is getting louder and you begin to hear the 
+                        sounds of young men hollering.";
+                    };
+
+                4:  deadflag = 3;
+                    if (location == Road) {
+                        "^As the car gets closer to you it suddenly accelerates.  
+                        Before you can react, it barrels into you.  Your body, 
+                        made mostly of straw flys apart scattering straw everywhere. 
+                        The last thing you remember before the light dims from your 
+                        eyes is your large pumpkin head bouncing off the windshield 
+                        and onto the road shattering into thousands of pieces.";
+                    } else if (location == PumpkinPatch) {
+                        "^As the car slows down you hear someone yell, 'There he is....
+                        old Jack is still in the pumpkin patch.'  You hear the sound of
+                        gun fire and something whistles pass your head.  You take off 
+                        running as more shots whizz close.  Just as you think you may 
+                        get away, one slams into the back of your head.  As the light 
+                        dims from your eyes, your last thought was 'Next year....'.";
+                    };
+            }
+        ],
+    has light;
+
+    
+    Object -> Ditch "ditch"
+        with name "ditch", 
+            description
+                "The ditch is very shallow, not much more than an light 
+                impression along the road.  Pumpkin vines from the field 
+                have encrouched slightly into the ditch.",
+        has container enterable open scenery light;

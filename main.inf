@@ -53,19 +53,35 @@ Object Road "Road"
             if (myselfobj.hiding)
                 print "You are lying in the ditch along side the road.  
                     In the darkness, you probably look like nothing more than another pumpkin 
-                    amongst thousands.";
+                    amongst thousands.^";
             else 
                 print "You are standing in the middle of a dirt road to the south of a
                     large field of pumpkins.  Along the north side of the road is a shallow ditch.  
-                    The road stretches on to the east and west.";
+                    The road stretches on to the east and west.^";
             if (self hasnt visited) {
                 StartTimer(self, 2);
-                "^^Looking up the road, you see a set of [headlights]
+                "^Looking up the road, you see a set of [headlights]
                     headed in your direction.  Something screams in your very soul that you need to hide,
                     you don't think it would be wise to be caught in the open in your state.";  
             }
         ],
         n_to PumpkinPatch,
+        cant_go [;
+            if (myselfobj.hiding) {
+                myselfobj.hiding = false;
+                "You get out of the ditch and are now standing in the road again.";
+            } else {
+                "^You feel a strong urge to head towards the town in the east.";
+            }
+        ],
+        before [;
+            Go:
+                if (myselfobj.hiding) {
+                    myselfobj.hiding = false;
+                    print "You get up out of the ditch first.^";
+                    rfalse;
+                }
+        ],
         time_left,
         time_out [;
             if (myselfobj.hiding) {

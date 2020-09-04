@@ -1,9 +1,0 @@
-Object PumpkinPatch "In the Pumpkin Patch"
-    with name 'pumpkin patch' 'patch', 
-        description
-            "You are standing in a middle of a pumpkin patch.   
-            The light from the full moon allows you to see some distance 
-            around you.  The pumpkin patch goes on in all directions except 
-            to the south where you can make the outline of a road.",
-        s_to Road,
-    has light;

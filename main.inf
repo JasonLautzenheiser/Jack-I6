@@ -13,7 +13,18 @@ Global p_past_road_car = false;
 Class Enemy
     with name "enemy" "teen" "man" "young",
         unconscious false,
-        dead false;
+        dead false,
+        before [;
+            Attack: if (self.dead) {
+                    print_ret "He's already dead, there's nothing else you could really do to him now.";
+                } else if (self.unconscious) {
+                    print_ret "You may appear to be a monster, but attacking ",(the) noun, " when he
+                    is unconscious would serve no purpose.";
+                } else {
+                    rfalse;
+                }
+
+        ];
 
 Class Place
     has light;
@@ -53,7 +64,31 @@ Place Neverland "Neverland"
             description
             "Really nothing more than a rusty piece of metal that was loosly 
             attached to the wheel of the car.  It is flat and looks like if 
-            you threw it like a frisbee it would go a great distance.";
+            you threw it like a frisbee it would go a great distance.",
+        before [;
+             ThrowAt: 
+                if (real_location ~= EdgeOfTown) {
+                    "You wind up and throw the hubcap in the air and sure enough it flies
+                    like a frisbee through the night sky.  You must have exceptioanl strength
+                    as it flies faster than you could have imagined.  As it falls to the
+                    ground, you run over and retrieve it.";
+                } else {
+                    if (second ofclass Enemy && second.unconscious == false && second.dead == false) {
+                        second.unconscious = true;
+                        print "You quickly stand up and throw the hubcap at the young man.
+                            He freezes as he sees your movement and you watch as the hubcap ";
+                        if (random(3) ~= 3) {
+                            second.dead = true;
+                            print "hit him square in the forehead";
+                        } else {
+                            print "skips off the top of his head";
+                        } 
+                        " and he falls to the ground dropping his rifle and machete.";
+                    }
+                }
+            ];
+        
+        
 
 
 Place PumpkinPatch "In the Pumpkin Patch"
@@ -217,7 +252,11 @@ Place EdgeOfTown "Edge of Town"
                }
             ],
             before [;
-                take: "You think twice of grabbing the young man when you realize what the machete could do to your head.";
+                Take: "You think twice of grabbing the young man when you realize what the machete could do to your head.";
+                Attack: if (parent(hubcap) == player) 
+                            <<ThrowAt hubcap Patroller>>;
+                        else 
+                            <<Take Patroller>>;
             ],
         has male;
 

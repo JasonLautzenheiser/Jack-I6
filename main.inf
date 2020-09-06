@@ -6,6 +6,7 @@ Object LibraryMessages
     with before[;
         Miscellany: if (lm_n == 10) 
                         "What's that? Speak up, speak up.";
+        Sorry: "You mumble something apologetic under your breath.";
     ];
 
 Include "Verblib";

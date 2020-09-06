@@ -1,5 +1,5 @@
 Constant Story "Jack";
-Constant Headline "^An Interactive Horror by Jason Lautzenheiser^";
+Constant Headline "^An Interactive Horror by Jason Lautzenheiser^Copyright (c) 2020  - Shrieking Falcon Games^";
 Statusline time;
 Include "Parser";
 
@@ -378,8 +378,8 @@ Outdoors EdgeOfTown "Edge of Town"
 [Initialise;
     location = PumpkinPatch;
     player = myselfobj;
-    SetTime(1380,0.5);
-    "Suddenly awareness comes to you.  You look around slowly, 
+    SetTime(1380,1);
+    print "Suddenly awareness comes to you.  You look around slowly, 
     seeing nothing at first, then in the moon light you find 
     yourself in the middle of a pumpkin patch.   Looking down at
     your feet there is straw coming out of the bottom of your 
@@ -392,7 +392,7 @@ Outdoors EdgeOfTown "Edge of Town"
     have nothing but vague memories of a time before the pumpkin patch.  
     You look around and see large pumpkins that seem to have the same 
     shape as your head.  It all comes flooding back to you.....
-    you are Jack....Jack Halloween. ";
+    you are Jack....Jack Halloween.^"; 
 ];
 
 Include "Grammar"; 

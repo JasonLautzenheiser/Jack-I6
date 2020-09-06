@@ -1,5 +1,6 @@
 Constant Story "Jack";
 Constant Headline "^An Interactive Horror by Jason Lautzenheiser^";
+Statusline time;
 Include "Parser";
 
 Object LibraryMessages
@@ -377,6 +378,7 @@ Outdoors EdgeOfTown "Edge of Town"
 [Initialise;
     location = PumpkinPatch;
     player = myselfobj;
+    SetTime(1380,0.5);
     "Suddenly awareness comes to you.  You look around slowly, 
     seeing nothing at first, then in the moon light you find 
     yourself in the middle of a pumpkin patch.   Looking down at

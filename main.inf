@@ -3,13 +3,10 @@ Constant Headline "^An Interactive Horror by Jason Lautzenheiser^";
 Include "Parser";
 Include "Verblib";
 
-!--------------------
 !- Constants and Globals
-!--------------------
-
 Global p_past_road_car = false;
 
-
+!- Classes
 Class Enemy
     with name "enemy" "teen" "man" "young",
         unconscious false,
@@ -23,18 +20,23 @@ Class Enemy
                 } else {
                     rfalse;
                 }
-
         ];
+
+Class OffScreen;
 
 Class Place
     has light;
 
-!--------------------
+Class Outdoors
+    class Place;
+
+Class Indoors
+    class Place;
+
 !- Player Character
-!--------------------
 Object myselfobj "(self object)"
   with 
-    name 'Jack' 'you' 'body',
+    name 'Jack' 'you' 'body' 'self',
     short_name "yourself",
     described,
     hiding,
@@ -52,13 +54,30 @@ Object myselfobj "(self object)"
     ],
   has concealed animate proper transparent male;
 
-!--------------------
-!- Rooms
-!--------------------
+!- Scenery
+Class Fardrop
+    with
+        before [;
+            Take: "If you could, you would....but where would you take it?";
+            Touch: print_ret (The) noun, " is too far away to touch.";
+        ];
 
-Place Neverland "Neverland" 
+Fardrop FullMoon "full moon"
+    with
+        name 'full' 'moon' 'full moon' 'orb' ,
+        found_in PumpkinPatch Road EdgeOfTown,
+        description 
+            "The great orb of the full moon hangs high in the sky.  It reflects enough light 
+            in the cloudless sky to provide a clear view of much of the landscape.",
+        has scenery;
+
+!- Rooms
+!- Neverland -- used to take items off scene
+OffScreen Neverland "Neverland" 
     with description "should never see this"; 
 
+    !- Hubcap starts off in neverland and will end up back there if used to get 
+    !- past the young man on the edge of town.
     Object -> hubcap "hubcap"
         with name "hubcap" "cap" "hub" "frisbee",
             description
@@ -84,14 +103,23 @@ Place Neverland "Neverland"
                             print "skips off the top of his head";
                         } 
                         " and he falls to the ground dropping his rifle and machete.";
+                    } else {
+                        move hubcap to Neverland;
+                        move Patroller to Neverland;
+                        player.hiding = false;
+                        "As quitely as you can, you toss the hubcap into the field next to the road.
+                        A loud cling rings through the still night as it strikes a rock that juts from the middle
+                        of the field.  The man stops in his tracks, looks in the direction of the noise and
+                        then takes off running.^^'I've found him  boys.  He's over here.' and disappears in the darkness.";
                     }
                 }
             ];
         
         
 
-
-Place PumpkinPatch "In the Pumpkin Patch"
+!- Pumpkin patch -- this is starting room, not much here other that to set the 
+!-                  story and atmosphere.
+Outdoors PumpkinPatch "In the Pumpkin Patch"
     with name 'pumpkin patch' 'patch', 
         description
             "You are standing in a middle of a pumpkin patch.   
@@ -101,8 +129,11 @@ Place PumpkinPatch "In the Pumpkin Patch"
         s_to Road,
     has light;
 
-Place Road "Road"    
-    with description [;
+!- Road - First area where you start to see what you are up against.
+Outdoors Road "Road"    
+    with
+        headLightsExamined,
+        description [;
             if (Road hasnt visited) {
                 StartDaemon(self);
             };
@@ -161,7 +192,12 @@ Place Road "Road"
                   in the ditch just ahead of you.  You reach over and pick it up.^";
                 rtrue;
             };
-            switch (++(self.turns_active)) {
+            ++(self.turns_active);
+            if (self.headLightsExamined) {
+                self.headLightsExamined = false;
+                rtrue;
+            };
+            switch (self.turns_active) {
                 1: if (location == Road) {
                         "^Looking up the road, you see a set of headlights
                         headed in your direction.  Something screams in your very soul that you need to hide,
@@ -204,7 +240,27 @@ Place Road "Road"
         ],
     has light;
 
-    
+    Object -> Headlights "headlights"
+        with name 'lights' 'headlights' 'car' 'vehicle',
+        description [;
+            if (p_past_road_car) {
+                "Luckily the car has headed back up the road and it seems safe to head east now.";
+            }
+            switch (Road.turns_active) {
+                1: Road.headLightsExamined = true;
+                    "The car is still off in the distance, but it appears to be moving quickly in your direction";
+                2: Road.headLightsExamined = true;
+                    "The lights are becoming larger and the vehicle is moving quickly down the road.";
+                3: if (player.hiding == true)
+                    "From your view in the ditch, the headlights are quite bright and leaks over the edge of the ditch
+                     and you are slightly illuminated.  You can only hope that they don't see you.";
+                   else 
+                    "You are frozen in the middle of the road, unable to move as the vehicle is almost on top of you.";
+            }
+        ],
+        has scenery;
+            
+
     Object -> Ditch "ditch"
         with name "ditch", 
             description
@@ -213,13 +269,15 @@ Place Road "Road"
                 have encrouched slightly into the ditch.",
         has container enterable open scenery light;
 
-Place EdgeOfTown "Edge of Town"
+!- Edge of town
+Outdoors EdgeOfTown "Edge of Town"
     with  
     description [;
         print "You have come to the edge of town.  A tall chainlink fence 
         stretches on either side of the road as far as you can see.  The road continues
         to the east into the center of town.^";
-         if (EdgeOfTown.visited == true) { 
+         if (EdgeOfTown hasnt visited) { 
+            player.hiding = true;
             "^As you come closer you see some movement near the barrier across the 
             road and you quickly crouch in the shadows not wanting to be seen.  A 
             moment later you see the movement again and you can just make out 
@@ -231,12 +289,14 @@ Place EdgeOfTown "Edge of Town"
          }
     ];
 
+    !- Pickup truck
     Object -> PickupTruck "pickup truck"
         with name "truck" "pickup" "ford" "car" "vehicle" "blue" "rusty",
             description "The rusty blue Ford truck sitting along the edge of the road has 
                 seen better days.";
 
 
+    !- Patrolller
     Enemy -> Patroller "young man"
         with name "man" "teen" "young man",
             description [;
@@ -260,9 +320,7 @@ Place EdgeOfTown "Edge of Town"
             ],
         has male;
 
-!--------------------
-!- Routines
-!--------------------
+!- Standard Routines
 [ DeathMessage;
       if (deadflag == 3) 
           print "Thus ends this halloween.....the town wins again and 
@@ -270,6 +328,7 @@ Place EdgeOfTown "Edge of Town"
           the town";
 ];
 
+!- Initialize function
 [Initialise;
     location = PumpkinPatch;
     player = myselfobj;
@@ -291,9 +350,7 @@ Place EdgeOfTown "Edge of Town"
 
 Include "Grammar"; 
 
-!--------------------
 !- New Verbs
-!--------------------
 Verb 'hide' 
     * -> Hide
     * container -> Hide

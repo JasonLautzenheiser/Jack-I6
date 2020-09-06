@@ -1,5 +1,9 @@
+!% +include_path=C:\apps\Inform6\inform6lib
+!% -s
+!% -X
 Constant Story "Jack";
-Constant Headline "^An Interactive Horror by Jason Lautzenheiser^Copyright (c) 2020  - Shrieking Falcon Games^";
+Constant Headline "^An Interactive Horror by Jason Lautzenheiser^";
+Release 2;
 Statusline time;
 Include "Parser";
 
@@ -393,6 +397,9 @@ Outdoors EdgeOfTown "Edge of Town"
     You look around and see large pumpkins that seem to have the same 
     shape as your head.  It all comes flooding back to you.....
     you are Jack....Jack Halloween.^"; 
+    banner();
+    print "Copyright (c) 2020  - Shrieking Falcon Games^";
+    return 2;
 ];
 
 Include "Grammar"; 

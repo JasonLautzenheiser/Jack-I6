@@ -395,11 +395,12 @@ Outdoors EdgeOfTown "Edge of Town"
 Include "Grammar"; 
 
 !- New Verbs
+
+!-- Hide
 Verb 'hide' 
     * -> Hide
     * container -> Hide
     * 'in' container -> Hide;
-
 
 Verb 'lay'
     * 'in' container -> Hide
@@ -429,7 +430,21 @@ Extend 'lie' first
     }
 ];
 
+!-- About
+
+Verb 'about' 'info' 'credits' 
+    * -> about;
+
+[ AboutSub; "Jack was created originally for the EctoComp13 and was created in under 3 hours in Inform 7.  
+The first release was quickly beta-tested by my son Trey Lautzenheiser, who doesn't normally play IF, but offered some valuable advice.  
+While it's taken me a few years, in 2020 I expanded the game and hopefully took out some of the rough edges as well as converted the code to Inform 6.  
+Hope you enjoy.^^It may be distributed for free, but not sold or included in any for-profit collection without written permission from the author.^^	
+Any bug reports or suggestions are welcome and can be emailed to lautzenheiser.jason@@64gmail.com.^^Check out my IF related blog at lautzofif.wordpress.com."; ];
+
+!-- xyzzy
+
 Verb 'xyzzy' 'plugh' 'frotz' 'plover' 'trizbort' * -> Xyzzy;
+
 [ XyzzySub; "Though you can't speak, a rumble arises from deep within 
 your chest.  The glow coming from your eyes briefly increases then just 
 as quickly fades away."; ];

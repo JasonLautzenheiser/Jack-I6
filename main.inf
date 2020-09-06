@@ -1,6 +1,13 @@
 Constant Story "Jack";
 Constant Headline "^An Interactive Horror by Jason Lautzenheiser^";
 Include "Parser";
+
+Object LibraryMessages
+    with before[;
+        Miscellany: if (lm_n == 10) 
+                        "What's that? Speak up, speak up.";
+    ];
+
 Include "Verblib";
 
 !- Constants and Globals

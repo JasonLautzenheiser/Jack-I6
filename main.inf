@@ -28,7 +28,21 @@ Class Place
     has light;
 
 Class Outdoors
-    class Place;
+    class Place
+    with
+        before [;
+            Examine: if (noun ofclass CompassDirection ) {
+                if (noun == u_obj) {
+                    "Above you is a cloudless sky lit by the full moon.";
+                } else  if (noun == d_obj) {
+                    "You stare at the ground and feel an urge to just lie down and let it end, but something far stronger is pulling you onward.";
+                } else {
+                    "There is nothing interesting in that direction.";
+                }
+            };
+        ],
+    has light;     
+
 
 Class Indoors
     class Place;
@@ -52,7 +66,28 @@ Object myselfobj "(self object)"
          };
          print_ret "";
     ],
+    react_before [;
+        Disrobe: print "Your clothing is the only thing holding your body of straw together.^";
+                rtrue;
+    ],
   has concealed animate proper transparent male;
+
+Object -> Overalls "overalls"
+    with name 'overalls' 'over alls' 'bibs',
+        description "The pair of overalls you are wearing are made of blue denim material and are well worn and ripped at the seams.",
+    has worn clothing;
+
+Object -> FlannelShirt "flannel shirt"
+    with name 'shirt' 'flannel' 'flannel shirt',
+        description "The scotch plaid flannel shirt is loosely tucked into your overalls.",
+    has worn clothing;
+
+Object -> Straw "straw"
+    with name 'straw' 'stuffing',
+        description "The straw seems to be part of your very being covering every part of your body or perhaps it is your body.",
+    has worn clothing;
+
+
 
 !- Scenery
 Class Fardrop
@@ -71,7 +106,7 @@ Fardrop FullMoon "full moon"
         description 
             "The great orb of the full moon hangs high in the sky.  It reflects enough light 
             in the cloudless sky to provide a clear view of much of the landscape.",
-        has scenery;
+        has scenery light;
 
 !- Rooms
 !- Neverland -- used to take items off scene

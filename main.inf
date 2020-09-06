@@ -65,7 +65,9 @@ Class Fardrop
 Fardrop FullMoon "full moon"
     with
         name 'full' 'moon' 'full moon' 'orb' ,
-        found_in PumpkinPatch Road EdgeOfTown,
+        found_in [;
+           return (location ofclass Outdoors);
+        ],
         description 
             "The great orb of the full moon hangs high in the sky.  It reflects enough light 
             in the cloudless sky to provide a clear view of much of the landscape.",

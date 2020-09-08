@@ -5,7 +5,14 @@ Constant Story "Jack";
 Constant Headline "^An Interactive Horror by Jason Lautzenheiser^";
 Release 2;
 Statusline time;
+
 Include "Parser";
+Replace ScoreSub;
+
+[ ScoreSub;
+  if (deadflag == 0)
+    "There is no score in this game.";
+];
 
 Object LibraryMessages
     with before[;
@@ -20,7 +27,15 @@ Include "Verblib";
 Global p_past_road_car = false;
 
 !- Classes
+Class ItemsThatCanBeHidden
+    with hidden false,
+        HideMe;
+
+Class Items
+    class ItemsThatCanBeHidden;
+
 Class Enemy
+    class ItemsThatCanBeHidden,
     with name "enemy" "teen" "man" "young",
         unconscious false,
         dead false,
@@ -59,6 +74,9 @@ Class Outdoors
 
 Class Indoors
     class Place;
+
+Class ScopedWhenCarried
+    class ItemsThatCanBeHidden;
 
 !- Player Character
 Object myselfobj "(self object)"
@@ -128,7 +146,7 @@ OffScreen Neverland "Neverland"
 
     !- Hubcap starts off in neverland and will end up back there if used to get 
     !- past the young man on the edge of town.
-    Object -> hubcap "hubcap"
+    Items -> hubcap "hubcap"
         with name "hubcap" "cap" "hub" "frisbee",
             description
             "Really nothing more than a rusty piece of metal that was loosly 
@@ -152,7 +170,8 @@ OffScreen Neverland "Neverland"
                         } else {
                             print "skips off the top of his head";
                         } 
-                        " and he falls to the ground dropping his rifle and machete.";
+                        second.AfterDeath();
+                        rtrue;
                     } else {
                         move hubcap to Neverland;
                         move Patroller to Neverland;
@@ -343,32 +362,83 @@ Outdoors EdgeOfTown "Edge of Town"
     Object -> PickupTruck "pickup truck"
         with name "truck" "pickup" "ford" "car" "vehicle" "blue" "rusty",
             description "The rusty blue Ford truck sitting along the edge of the road has 
-                seen better days.";
+                seen better days.",
+        has static;
 
+    Object -> -> TruckBed "truck bed"
+        with name 'bed' 'truck bed',
+        has open container;
+
+    Object -> -> -> Shovel "shovel"
+        with name 'shovel' 'spade' 'garden' 'garden shovel',
+            description "The garden shovel has some fresh dirt on it.";
 
     !- Patrolller
     Enemy -> Patroller "young man"
         with name "man" "teen" "young man",
+            AfterDeath [;
+                move machete to parent(self);
+                move Rifle to parent(self);
+                "and he falls to the ground dropping his rifle and machete.";
+            ],
             description [;
-               print "He is just a young boy, perhaps in his early teens.  ";
-               if (self.unconscious == false) {
-                   print "In one hand he carries a large machete and slung from one shoulder is a rifle.";
-               } 
-               if (self.unconscious) {
-                   print "He is laying on the ground with a large lump on his head.  He appears to still be
-                    breathing so he may come to at any moment so you may want to hurry.";
-               } else if (self.dead) {
-                   print "Embedded in his head is the hubcap you just threw.";
-               }
+                if (Patroller.hidden) {
+                    "He is hidden among the tall grass in the field where noone coming down the road will see him.";
+                } else {
+                    print "He is just a young boy, perhaps in his early teens.  ";
+                    if (self.unconscious == false) {
+                        print "In one hand he carries a large machete and slung from one shoulder is a rifle.";
+                    } 
+                    if (self.unconscious) {
+                        print "He is laying on the ground with a large lump on his head.  He appears to still be
+                            breathing so he may come to at any moment so you may want to hurry.";
+                    } else if (self.dead) {
+                        print "Embedded in his head is the hubcap you just threw.";
+                    }
+                }
             ],
             before [;
-                Take: "You think twice of grabbing the young man when you realize what the machete could do to your head.";
+                Take, Pull, Push: 
+                if (self.hidden) {
+                    "It's best if you just leave him hidden for now.";
+                }
+                if (self.unconscious || self.dead) {
+                    Patroller.hidden = true;
+                    give Patroller scenery;
+                    "You drag the body of the young man off into the field where it's hidden from anyone coming down the road.";
+                } else {
+                    "You think twice of grabbing the young man when you realize what the machete could do to your head.";
+                };
                 Attack: if (parent(hubcap) == player) 
                             <<ThrowAt hubcap Patroller>>;
                         else 
                             <<Take Patroller>>;
             ],
+            HideMe [;
+                <<Take self>>;
+            ]
         has male;
+
+        ScopedWhenCarried -> -> Machete "machete"
+            with name 'machete' 'sword' 'knife',
+                description [;
+                    if (parent(self) ofclass Enemy) {
+                        "The young man holds the machete in his right hand slightly out in front of him.";
+                    } else  {
+                        "A rusty machete, but still sharp enough it could have sliced through your pumpkin head.l";
+                    }
+                ];
+
+        
+        ScopedWhenCarried -> -> Rifle "rifle"
+            with name 'rifle' 'gun',
+                description [; 
+                    if (parent(self) ofclass Enemy) {
+                        print_ret "The gun is slung over the young man's shoulder.";
+                    } else {
+                        print_ret "A .270 Winchester rifle.  Powerful enough to spread the pumpkin seeds in your head all over the road.";
+                    }
+                ];
 
 !- Standard Routines
 [ DeathMessage;
@@ -376,6 +446,13 @@ Outdoors EdgeOfTown "Edge of Town"
           print "Thus ends this halloween.....the town wins again and 
           poor Jack Halloween waits another year for his revenge upon 
           the town";
+];
+
+[ InScope person i;
+  if (person == player && real_location == EdgeOfTown && Patroller.dead == false && Patroller.unconscious == false)
+      objectloop (i in Patroller)
+          if (i ofclass ScopedWhenCarried) PlaceInScope(i);
+  rfalse;
 ];
 
 !- Initialize function
@@ -410,7 +487,8 @@ Include "Grammar";
 Verb 'hide' 
     * -> Hide
     * container -> Hide
-    * 'in' container -> Hide;
+    * 'in' container -> Hide
+    * noun -> HideItem;
 
 Verb 'lay'
     * 'in' container -> Hide
@@ -422,6 +500,13 @@ Extend 'lie' first
     * 'in' container -> Hide
     * 'down' 'in' container -> Hide;
 
+[HideItemSub;
+    if (noun.HideMe) {
+        noun.HideMe();
+    } else {
+        "Not sure how you can hide something like that.";
+    }    
+];
 
 [HideSub; 
     if (myselfobj.hiding) {

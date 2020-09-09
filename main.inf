@@ -48,6 +48,10 @@ Class Enemy
                 } else {
                     rfalse;
                 }
+        ],
+        Incapacitated [; 
+            print self.dead; print "^"; print self.unconscious;
+            if (self.dead || self.unconscious) rtrue; rfalse;
         ];
 
 Class OffScreen;
@@ -160,7 +164,7 @@ OffScreen Neverland "Neverland"
                     as it flies faster than you could have imagined.  As it falls to the
                     ground, you run over and retrieve it.";
                 } else {
-                    if (second ofclass Enemy && second.unconscious == false && second.dead == false) {
+                    if (second ofclass Enemy && second.Incapacitated()== false) {
                         second.unconscious = true;
                         print "You quickly stand up and throw the hubcap at the young man.
                             He freezes as he sees your movement and you watch as the hubcap ";
@@ -402,7 +406,7 @@ Outdoors EdgeOfTown "Edge of Town"
                 if (self.hidden) {
                     "It's best if you just leave him hidden for now.";
                 }
-                if (self.unconscious || self.dead) {
+                if (self.Incapacitated()) {
                     Patroller.hidden = true;
                     give Patroller scenery;
                     "You drag the body of the young man off into the field where it's hidden from anyone coming down the road.";
@@ -440,6 +444,8 @@ Outdoors EdgeOfTown "Edge of Town"
                     }
                 ];
 
+        
+
 !- Standard Routines
 [ DeathMessage;
       if (deadflag == 3) 
@@ -448,11 +454,21 @@ Outdoors EdgeOfTown "Edge of Town"
           the town";
 ];
 
+!- puts items that are carried by the Patroller in scope if the item has the class of ScopeWhenCarried
 [ InScope person i;
-  if (person == player && real_location == EdgeOfTown && Patroller.dead == false && Patroller.unconscious == false)
+  if (person == player && real_location == EdgeOfTown && Patroller.Incapacitated() == false)
       objectloop (i in Patroller)
           if (i ofclass ScopedWhenCarried) PlaceInScope(i);
   rfalse;
+];
+
+[ChooseObjects obj code;
+    if (code < 2) { 
+        if (obj ofclass Enemy) {
+            return 2;
+        }
+    }
+    rfalse;
 ];
 
 !- Initialize function

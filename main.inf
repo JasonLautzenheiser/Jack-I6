@@ -25,6 +25,7 @@ Include "Verblib";
 
 !- Constants and Globals
 Global p_past_road_car = false;
+Global p_past_edge_of_town = false;
 
 !- Classes
 Class ItemsThatCanBeHidden
@@ -76,8 +77,8 @@ Class Outdoors
     has light;     
 
 
-Class Indoors
-    class Place;
+! Class Indoors
+!     class Place;
 
 Class ScopedWhenCarried
     class ItemsThatCanBeHidden;
@@ -360,7 +361,37 @@ Outdoors EdgeOfTown "Edge of Town"
          if (PickupTruck.location == EdgeOfTown) {
             "There is a pickup truck sitting along the road.";
          }
+    ],
+    before [;
+    Go: if ((noun == e_to || noun == w_to) && p_past_edge_of_town == false) {
+            deadflag = 3;
+            if (noun == w_to) {
+                print "You start to walk back the way you came.  Before you get to far, you hear the young man behind you scream, 'There he is....old Jack...I've got him!'  
+            With that you barely hear the shot before the pumpkin atop your body explodes into a million pieces.";
+            } else if (noun == e_to) {
+              "You come out from hiding and begin to approach the young man.  Before you take more than a few steps, he sees you and yells 'I found him....old Jack...he's right here.' 
+              He runs at you and before you can move, he embeds the machete into your pumpkin head.";  
+            }
+
+        }
     ];
+
+    Object -> Fence "chainlink fence"
+        with name 'fence' 'chain' 'chainlink' 'chainlink fence' 'barrier' 'barbwire' 'wire' 'barb wire',
+            description "The fence stretches into the darkness on both sides of the road.  All along the 
+                top barbwire keeps you from even thinking about going over the top.  The only way into town
+                is up the road to the east.",
+            before [;
+                Climb: if (Patroller.Incapacitated()) {
+                    "You start climbing the fence, but when you reach the top you quickly realize that you'll never
+                    make it over the barbwire that lines the top.";
+                } else {
+                    "You begin to creep towards the fence but almost immediately the young man stops and quickly starts to look around
+                    searching for the sound he thinks he heard.  You quickly retreat to your hiding place.";
+                };
+            ],
+            
+        has scenery;
 
     !- Pickup truck
     Object -> PickupTruck "pickup truck"

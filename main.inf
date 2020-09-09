@@ -51,7 +51,6 @@ Class Enemy
                 }
         ],
         Incapacitated [; 
-            print self.dead; print "^"; print self.unconscious;
             if (self.dead || self.unconscious) rtrue; rfalse;
         ];
 
@@ -171,15 +170,17 @@ OffScreen Neverland "Neverland"
                             He freezes as he sees your movement and you watch as the hubcap ";
                         if (random(3) ~= 3) {
                             second.dead = true;
-                            print "hit him square in the forehead";
+                            print "hit him square in the forehead ";
                         } else {
-                            print "skips off the top of his head";
+                            print "skips off the top of his head ";
                         } 
                         second.AfterDeath();
+                        move hubcap to real_location;
                         rtrue;
                     } else {
                         move hubcap to Neverland;
                         move Patroller to Neverland;
+                        p_past_edge_of_town = true;
                         player.hiding = false;
                         "As quitely as you can, you toss the hubcap into the field next to the road.
                         A loud cling rings through the still night as it strikes a rock that juts from the middle
@@ -346,6 +347,8 @@ Outdoors Road "Road"
 !- Edge of town
 Outdoors EdgeOfTown "Edge of Town"
     with  
+    e_to TownSquare,
+    w_to Road,
     description [;
         print "You have come to the edge of town.  A tall chainlink fence 
         stretches on either side of the road as far as you can see.  The road continues
@@ -366,11 +369,11 @@ Outdoors EdgeOfTown "Edge of Town"
     Go: if ((noun == e_to || noun == w_to) && p_past_edge_of_town == false) {
             deadflag = 3;
             if (noun == w_to) {
-                print "You start to walk back the way you came.  Before you get to far, you hear the young man behind you scream, 'There he is....old Jack...I've got him!'  
-            With that you barely hear the shot before the pumpkin atop your body explodes into a million pieces.";
+                "You start to walk back the way you came.  Before you get to far, you hear the young man behind you scream, 'There he is....old Jack...I've got him!'  
+                With that you barely hear the shot before the pumpkin atop your body explodes into a million pieces.";
             } else if (noun == e_to) {
-              "You come out from hiding and begin to approach the young man.  Before you take more than a few steps, he sees you and yells 'I found him....old Jack...he's right here.' 
-              He runs at you and before you can move, he embeds the machete into your pumpkin head.";  
+                "You come out from hiding and begin to approach the young man.  Before you take more than a few steps, he sees you and yells 'I found him....old Jack...he's right here.' 
+                He runs at you and before you can move, he embeds the machete into your pumpkin head.";  
             }
 
         }
@@ -414,6 +417,7 @@ Outdoors EdgeOfTown "Edge of Town"
             AfterDeath [;
                 move machete to parent(self);
                 move Rifle to parent(self);
+                p_past_edge_of_town = true;
                 "and he falls to the ground dropping his rifle and machete.";
             ],
             description [;
@@ -476,6 +480,18 @@ Outdoors EdgeOfTown "Edge of Town"
                 ];
 
         
+Outdoors TownSquare "Town Square"
+    with
+        w_to EdgeOfTown, 
+        description [;
+            if (player.hiding) {
+                print "You are hiding behind the [fountain] in the town square.  ";
+            } else {
+                print "You are standing in the center of town.  ";
+            };
+            "You can head back out of town to the west.  There is an old church off to the north and the townhall building is on the south side of the square. 
+            Rising above the townhall is a large clock tower.";
+    ];
 
 !- Standard Routines
 [ DeathMessage;

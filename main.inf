@@ -4,7 +4,7 @@
 Constant Story "Jack";
 Constant Headline "^An Interactive Horror by Jason Lautzenheiser^";
 Release 2;
-Statusline time;
+! Statusline time;
 
 Include "Parser";
 Replace ScoreSub;
@@ -484,6 +484,14 @@ Outdoors TownSquare "Town Square"
     with
         w_to EdgeOfTown, 
         description [;
+            if (self hasnt visited) {
+                player.hiding = true;
+                shooter.shot_count++;
+                shooter.turns_active = 0;
+                StartDaemon(Shooter);
+                "As you enter the town's center you hear a gunshot ring out.  The whistle of the slug as it passes near your head and the dust kicking up a 
+                few feet behind you are enough to send you scrambling to hide behind the fountain.";
+            };
             if (player.hiding) {
                 print "You are hiding behind the [fountain] in the town square.  ";
             } else {
@@ -491,7 +499,68 @@ Outdoors TownSquare "Town Square"
             };
             "You can head back out of town to the west.  There is an old church off to the north and the townhall building is on the south side of the square. 
             Rising above the townhall is a large clock tower.";
-    ];
+        ],
+        cant_go [;
+            print "There is nothing in that direction. ";
+            if (shooter.dead == false && player.hiding) print "You really shouldn't leave your hiding spot if you have nowhere to go.^";
+            rfalse;
+        ],
+        before [;
+            Go: if (noun == n_to || noun == w_to) {
+                    if (shooter.reloading == false && shooter.dead == false) {
+                        deadflag = 3;
+                        "You rise up from your hiding place and attempt to run away, but before you take more than a couple steps, a slug slams into the side of your
+                        head spreading pumpkin slime and seeds all over the square.";
+                    }
+                } else {
+                    rfalse;
+                };
+        ];
+
+
+    Enemy ->  Shooter "shooter"
+            with name 'man' 'shooter' 'assassin' 'sniper' 'sam',
+            shot_count,
+            turns_active,
+            reloading,
+            hiding,
+            description [;
+                print "The shooter is too far away to get a good look at in this poor lighting, but you can see that he ";
+                if (self.hiding)
+                    "You can't see where the shot came from.";
+                else 
+                    if (shooter.dead) 
+                        "is slumped over the edge of the clock tower presumably dead.";
+                    else 
+                        "has is rifle aimed in your general direction.";
+            ],
+        daemon [;
+            if (self.dead) {
+                self.turns_active = 0; StopDaemon();
+            } else {
+                ++self.turns_active;
+                if (self.turns_active > 1) { 
+                    self.reloading = false;
+                    if (self.shot_count >= 1) {
+                        if (random(100) < 40) {
+                            print "^Another gunshot rings through the square. "; 
+                            self.shot_count++;
+                            print (string) random(
+                                "The slug skips off the edge of the fountain near where you are hiding.  You're not sure if it was just a lucky shot or if he actually sees you.^",        
+                                "The shot hits something on the other side of the square.^",
+                                "Someone from inside a nearby building yells 'Did you get him Sam?'^",  
+                                "The shot skips off the water in the fountain.^"  
+                            );
+                            if (self.shot_count % 6 == 0) {
+                                self.reloading = true;
+                                print "^You hear the click of an empty rifle and then the sniper fumbling around trying to quickly reload.   This may be your chance.^";
+                            }
+                        }
+                    }
+                }
+            }
+        ],
+        has animate male concealed;
 
 !- Standard Routines
 [ DeathMessage;

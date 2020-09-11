@@ -1,6 +1,7 @@
 !% +include_path=C:\apps\Inform6\inform6lib
 !% -s
 !% -X
+!% -G
 Constant Story "Jack";
 Constant Headline "^An Interactive Horror by Jason Lautzenheiser^";
 Release 2;
@@ -34,6 +35,9 @@ Class ItemsThatCanBeHidden
 
 Class Items
     class ItemsThatCanBeHidden;
+
+Class Props 
+    has scenery;
 
 Class Enemy
     class ItemsThatCanBeHidden,
@@ -559,9 +563,33 @@ Outdoors TownSquare "Town Square"
                     }
                 }
             }
-        ],
-        has animate male concealed;
+        ];
+    
+    Props -> Fountain "fountain"
+        with name 'fountain' 'water fountain',
+            description "The fountain is no longer running and the stagnant water is only a few inches deep.  In the middle of the fountain is a worn statue of a man on a horse.";
 
+    Props -> Statue "statue"
+        with name 'statue' 'man' 'horserider',
+            description "The statue is of horserider on a galloping horse.   One upraised arm holds a sword and in the other is a statue of a severed head.  Below the statue is a plaque.";
+
+    Props -> Sword "sword"
+        with name 'sword' 'blade',
+            description "A sword fashioned from the same granite as the rest of the statue.";
+
+    Props -> SeveredHead "severed head"
+        with name 'head' 'severed head',
+            description "The carved head is that of a young woman with long flowing hair.";
+
+    Props -> Plaque "plaque"
+        with name 'plaque' 'sign' 'words',
+            description [;
+                print "You can just make out the text of the plaque that reads: "; 
+                style underline;
+                print "^^Reverend Josef Karlmann -  July 7, 1777^That which I see not teach thou me: if I have done iniquity, I will do no more.^"; 
+                style roman;
+            ];
+            
 !- Standard Routines
 [ DeathMessage;
       if (deadflag == 3) 
@@ -578,7 +606,7 @@ Outdoors TownSquare "Town Square"
   rfalse;
 ];
 
-[ChooseObjects obj code;
+[ChooseObjects  obj code;
     if (code < 2) { 
         if (obj ofclass Enemy) {
             return 2;
@@ -586,6 +614,7 @@ Outdoors TownSquare "Town Square"
     }
     rfalse;
 ];
+
 
 !- Initialize function
 [Initialise;

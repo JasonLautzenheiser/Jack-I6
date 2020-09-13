@@ -1,9 +1,13 @@
 !% +include_path=C:\apps\Inform6\inform6lib
 !% -s
+!% -k
 !% -X
+!% -D
 !% -G
 Constant Story "Jack";
 Constant Headline "^An Interactive Horror by Jason Lautzenheiser^";
+Constant AMUSING_PROVIDED;
+Constant DEATH_MENTION_UNDO;
 Release 2;
 ! Statusline time;
 
@@ -76,12 +80,10 @@ Class Outdoors
                     "There is nothing interesting in that direction.";
                 }
             };
-        ],
-    has light;     
+        ];
 
-
-! Class Indoors
-!     class Place;
+Class Indoors
+    class Place;
 
 Class ScopedWhenCarried
     class ItemsThatCanBeHidden;
@@ -237,12 +239,13 @@ Outdoors Road "Road"
         ],
         before [;
             Go:
+                StopDaemon(self);
                 if (myselfobj.hiding) {
                     myselfobj.hiding = false;
                     print "You get up out of the ditch first.^";
                     rfalse;
                 };
-                if (noun == e_to && p_past_road_car ~= true) {
+                if (noun == e_obj && p_past_road_car ~= true) {
                     deadflag = 3;
                     print "As you begin to head east towards the town, the car suddenly
                      accelerates. Before you can react, it barrels into you.  Your body, 
@@ -370,12 +373,12 @@ Outdoors EdgeOfTown "Edge of Town"
          }
     ],
     before [;
-    Go: if ((noun == e_to || noun == w_to) && p_past_edge_of_town == false) {
+    Go: if ((noun == e_obj || noun == w_obj) && p_past_edge_of_town == false) {
             deadflag = 3;
-            if (noun == w_to) {
+            if (noun == w_obj) {
                 "You start to walk back the way you came.  Before you get to far, you hear the young man behind you scream, 'There he is....old Jack...I've got him!'  
                 With that you barely hear the shot before the pumpkin atop your body explodes into a million pieces.";
-            } else if (noun == e_to) {
+            } else if (noun == e_obj) {
                 "You come out from hiding and begin to approach the young man.  Before you take more than a few steps, he sees you and yells 'I found him....old Jack...he's right here.' 
                 He runs at you and before you can move, he embeds the machete into your pumpkin head.";  
             }
@@ -487,15 +490,19 @@ Outdoors EdgeOfTown "Edge of Town"
 Outdoors TownSquare "Town Square"
     with
         w_to EdgeOfTown, 
+        n_to OldChurch,
         description [;
             if (self hasnt visited) {
+                print "As you enter the town's center you hear a gunshot ring out.  The whistle of the slug as it passes near your head and the dust kicking up a 
+                few feet behind you are enough to send you scrambling to hide behind the fountain.^^";
+            };
+            print shooter.Incapacitated();
+            if (shooter.Incapacitated() == false) {
                 player.hiding = true;
                 shooter.shot_count++;
                 shooter.turns_active = 0;
                 StartDaemon(Shooter);
-                "As you enter the town's center you hear a gunshot ring out.  The whistle of the slug as it passes near your head and the dust kicking up a 
-                few feet behind you are enough to send you scrambling to hide behind the fountain.";
-            };
+            }
             if (player.hiding) {
                 print "You are hiding behind the [fountain] in the town square.  ";
             } else {
@@ -506,12 +513,12 @@ Outdoors TownSquare "Town Square"
         ],
         cant_go [;
             print "There is nothing in that direction. ";
-            if (shooter.dead == false && player.hiding) print "You really shouldn't leave your hiding spot if you have nowhere to go.^";
+            if (shooter.Incapacitated() == false && player.hiding) print "You really shouldn't leave your hiding spot if you have nowhere to go.^";
             rfalse;
         ],
         before [;
-            Go: if (noun == n_to || noun == w_to) {
-                    if (shooter.reloading == false && shooter.dead == false) {
+            Go: if (noun == n_obj || noun == w_obj) {
+                    if (shooter.reloading == false && shooter.Incapacitated() == false) {
                         deadflag = 3;
                         "You rise up from your hiding place and attempt to run away, but before you take more than a couple steps, a slug slams into the side of your
                         head spreading pumpkin slime and seeds all over the square.";
@@ -533,14 +540,18 @@ Outdoors TownSquare "Town Square"
                 if (self.hiding)
                     "You can't see where the shot came from.";
                 else 
-                    if (shooter.dead) 
+                    if (shooter.Incapacitated()) 
                         "is slumped over the edge of the clock tower presumably dead.";
                     else 
                         "has is rifle aimed in your general direction.";
             ],
         daemon [;
-            if (self.dead) {
-                self.turns_active = 0; StopDaemon();
+            if (location ~= TownSquare) {
+                print location;
+                StopDaemon(self);
+            }
+            if (self.Incapacitated()) {
+                self.turns_active = 0; StopDaemon(self);
             } else {
                 ++self.turns_active;
                 if (self.turns_active > 1) { 
@@ -590,14 +601,64 @@ Outdoors TownSquare "Town Square"
                 style roman;
             ];
             
+Outdoors OldChurch "Outside Old Church" 
+    with
+        s_to TownSquare,
+        e_to Cemetery,
+        n_to Vestibule,
+        in_to Vestibule,
+        description 
+            "You are outside an old church.  The church has seen better years.  The entrance to the church is to the north.  Behind the church to the east you 
+             see a small overgrown cemetery.  The town square is back to the south.";
+
+Outdoors Cemetery "Cemetery"
+    with
+        description [;
+            if (Cemetery hasnt visited) {
+                deadflag = 2;
+                "As you enter the cemetery, you feel a sudden pressure building in your head.  As your head expands, cracks appear and the light 
+                coming from within you outshines the full moon.^^As you fall to your knees, the screams coming from the town can be heard far above your own.  
+                The curse of Jack Halloween has been lifted.  You are free from your cycle of birth and death, and the town has fallen beneath the weight of its sins.";
+            }
+        ],
+        w_to OldChurch;
+        
+
+Indoors Vestibule "Church Vesitbule"
+    with
+        s_to OldChurch,
+        n_to Nave,
+        out_to OldChurch, 
+        description "You are in the church vestibule.  To the north is the nave of the church.  The exit is back to the south.";
+
+Indoors Nave "Church Nave"
+    with 
+        s_to Vestibule,
+        n_to Altar,
+        description "The nave of the church. To the north is the altar.  The vestibule is to the south.";
+
+Indoors Altar "Altar"
+    with 
+        s_to Nave,
+        description "You've come to the altar at the head of the church.   The [pulpit] from which the 
+        pastor would deliver the sermon, stands in the in front of the altar.   Hanging on the wall behind 
+        the pulpit is a large [cross].  Instead of a typical crucifix, nailed to this cross is a [body] 
+        dripping blood with a [pumpkin] on its head.  To the west is a set of stairs and the church office is 
+        to the east.  You can move into the nave by heading south.";
+
 !- Standard Routines
 [ DeathMessage;
-      if (deadflag == 3) 
-          print "Thus ends this halloween.....the town wins again and 
-          poor Jack Halloween waits another year for his revenge upon 
-          the town";
+    if (deadflag == 3) 
+        "Thus ends this halloween.....the town wins again and 
+        poor Jack Halloween waits another year for his revenge upon 
+        the town";
+    if (deadflag == 2) 
+        "Rest in peace, Jack Halloween.....next year will come and go.";    
 ];
 
+[ Amusing; 
+    "Here are some amusing things to try.";
+];
 !- puts items that are carried by the Patroller in scope if the item has the class of ScopeWhenCarried
 [ InScope person i;
   if (person == player && real_location == EdgeOfTown && Patroller.Incapacitated() == false)

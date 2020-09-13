@@ -6,6 +6,8 @@
 !% -G
 Constant Story "Jack";
 Constant Headline "^An Interactive Horror by Jason Lautzenheiser^";
+Constant AMUSING_PROVIDED;
+Constant DEATH_MENTION_UNDO;
 Release 2;
 ! Statusline time;
 
@@ -595,22 +597,24 @@ Outdoors TownSquare "Town Square"
 Outdoors OldChurch "Outside Old Church" 
     with
         s_to TownSquare,
-        e_to Cementary,
+        e_to Cemetery,
         n_to Vestibule,
         in_to Vestibule,
         description 
             "You are outside an old church.  The church has seen better years.  The entrance to the church is to the north.  Behind the church to the east you 
              see a small overgrown cemetery.  The town square is back to the south.";
 
-Outdoors Cementary "Cementary"
+Outdoors Cemetery "Cemetery"
     with
-        w_to OldChurch,
-        before [;
-            Go: deadflag = 2;
+        description [;
+            if (Cemetery hasnt visited) {
+                deadflag = 2;
                 "As you enter the cemetery, you feel a sudden pressure building in your head.  As your head expands, cracks appear and the light 
                 coming from within you outshines the full moon.^^As you fall to your knees, the screams coming from the town can be heard far above your own.  
                 The curse of Jack Halloween has been lifted.  You are free from your cycle of birth and death, and the town has fallen beneath the weight of its sins.";
-        ];
+            }
+        ],
+        w_to OldChurch;
         
 
 Indoors Vestibule "Church Vesitbule"
@@ -645,6 +649,9 @@ Indoors Altar "Altar"
         "Rest in peace, Jack Halloween.....next year will come and go.";    
 ];
 
+[ Amusing; 
+    "Here are some amusing things to try.";
+];
 !- puts items that are carried by the Patroller in scope if the item has the class of ScopeWhenCarried
 [ InScope person i;
   if (person == player && real_location == EdgeOfTown && Patroller.Incapacitated() == false)

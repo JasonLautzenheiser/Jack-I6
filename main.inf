@@ -15,8 +15,8 @@ Include "Parser";
 Replace ScoreSub;
 
 [ ScoreSub;
-  if (deadflag == 0)
-    "There is no score in this game.";
+    if (deadflag == 0)
+        "There is no score in this game.";
 ];
 
 Object LibraryMessages
@@ -31,6 +31,9 @@ Include "Verblib";
 !- Constants and Globals
 Global p_past_road_car = false;
 Global p_past_edge_of_town = false;
+
+!- Attribute
+Attribute Weapon;
 
 !- Classes
 Class ItemsThatCanBeHidden
@@ -90,28 +93,27 @@ Class ScopedWhenCarried
 
 !- Player Character
 Object myselfobj "(self object)"
-  with 
-    name 'Jack' 'you' 'body' 'self',
-    short_name "yourself",
-    described,
-    hiding,
-    description [;
-        print "You are very tall.  You are wearing overalls and a flannel shirt.  
-        Straw slowly falls from your sleeves and pants leaving a trail
-        behind as you walk. ";
-        if (self.described == false) {
-            print "^^As you raise your hands to your heavy head and move to run 
-                your hands through your hair, you feel nothing but a cool, hard 
-                shell of a pumpkin.";
-            self.described = true;
-         };
-         print_ret "";
-    ],
-    react_before [;
-        Disrobe: print "Your clothing is the only thing holding your body of straw together.^";
-                rtrue;
-    ],
-  has concealed animate proper transparent male;
+    with 
+        name 'Jack' 'you' 'body' 'self',
+        short_name "yourself",
+        described,
+        hiding,
+        description [;
+            print "You are very tall.  You are wearing overalls and a flannel shirt.  
+            Straw slowly falls from your sleeves and pants leaving a trail
+            behind as you walk. ";
+            if (self.described == false) {
+                print "^^As you raise your hands to your heavy head and move to run 
+                    your hands through your hair, you feel nothing but a cool, hard 
+                    shell of a pumpkin.";
+                self.described = true;
+            };
+        ],
+        react_before [;
+            Disrobe: print "Your clothing is the only thing holding your body of straw together.^";
+                    rtrue;
+        ],
+    has concealed animate proper transparent male;
 
 Object -> Overalls "overalls"
     with name 'overalls' 'over alls' 'bibs',
@@ -140,9 +142,9 @@ Class Fardrop
 
 Fardrop FullMoon "full moon"
     with
-        name 'full' 'moon' 'full moon' 'orb' ,
+        name 'full' 'moon' 'full moon' 'orb',
         found_in [;
-           return (location ofclass Outdoors);
+            return (location ofclass Outdoors);
         ],
         description 
             "The great orb of the full moon hangs high in the sky.  It reflects enough light 
@@ -163,7 +165,7 @@ OffScreen Neverland "Neverland"
             attached to the wheel of the car.  It is flat and looks like if 
             you threw it like a frisbee it would go a great distance.",
         before [;
-             ThrowAt: 
+            ThrowAt: 
                 if (real_location ~= EdgeOfTown) {
                     "You wind up and throw the hubcap in the air and sure enough it flies
                     like a frisbee through the night sky.  You must have exceptioanl strength
@@ -248,12 +250,12 @@ Outdoors Road "Road"
                 if (noun == e_obj && p_past_road_car ~= true) {
                     deadflag = 3;
                     print "As you begin to head east towards the town, the car suddenly
-                     accelerates. Before you can react, it barrels into you.  Your body, 
-                     made mostly of straw flys apart scattering straw everywhere.  The last 
-                     thing you remember before the light dims from your eyes is your large pumpkin 
-                     head bouncing off the windshield and onto the road only shatter 
-                     into thousands of pieces.";
-                     rtrue;
+                        accelerates. Before you can react, it barrels into you.  Your body, 
+                        made mostly of straw flys apart scattering straw everywhere.  The last 
+                        thing you remember before the light dims from your eyes is your large pumpkin 
+                        head bouncing off the windshield and onto the road only shatter 
+                        into thousands of pieces.";
+                    rtrue;
                 }
         ],
         turns_active,
@@ -265,13 +267,13 @@ Outdoors Road "Road"
                 myselfobj.hiding = false;
                 move hubcap to myselfobj;
                 print "^The car drives slowly down the road just feet from where you are lying down.
-                  Two boys hang out the side window with shotguns at the ready.^^You hear one of 
-                  them say 'I swear I saw something standing around here somewhere.'^^'You just had 
-                  too much beer before we left, Joe.  You're so drunk you wouldn't notice old 
-                  Jack standing right next to you,'  someone yelled from inside the car.^^The car 
-                  slides a bit further down the road, turns around and then heads back the way it 
-                  came.^^As the car flies back up the road one of its hubcaps comes off and lands 
-                  in the ditch just ahead of you.  You reach over and pick it up.^";
+                    Two boys hang out the side window with shotguns at the ready.^^You hear one of 
+                    them say 'I swear I saw something standing around here somewhere.'^^'You just had 
+                    too much beer before we left, Joe.  You're so drunk you wouldn't notice old 
+                    Jack standing right next to you,'  someone yelled from inside the car.^^The car 
+                    slides a bit further down the road, turns around and then heads back the way it 
+                    came.^^As the car flies back up the road one of its hubcaps comes off and lands 
+                    in the ditch just ahead of you.  You reach over and pick it up.^";
                 rtrue;
             };
             ++(self.turns_active);
@@ -335,8 +337,8 @@ Outdoors Road "Road"
                     "The lights are becoming larger and the vehicle is moving quickly down the road.";
                 3: if (player.hiding == true)
                     "From your view in the ditch, the headlights are quite bright and leaks over the edge of the ditch
-                     and you are slightly illuminated.  You can only hope that they don't see you.";
-                   else 
+                    and you are slightly illuminated.  You can only hope that they don't see you.";
+                else 
                     "You are frozen in the middle of the road, unable to move as the vehicle is almost on top of you.";
             }
         ],
@@ -360,29 +362,32 @@ Outdoors EdgeOfTown "Edge of Town"
         print "You have come to the edge of town.  A tall chainlink fence 
         stretches on either side of the road as far as you can see.  The road continues
         to the east into the center of town.^";
-         if (EdgeOfTown hasnt visited) { 
+        if (EdgeOfTown hasnt visited) { 
             player.hiding = true;
             "^As you come closer you see some movement near the barrier across the 
             road and you quickly crouch in the shadows not wanting to be seen.  A 
             moment later you see the movement again and you can just make out 
             someone patrolling back and forth across the road.  There is no way to get around 
             him without being seen.  Perhaps you could distract him somehow.";
-         };
-         if (PickupTruck.location == EdgeOfTown) {
+        };
+        if (PickupTruck.location == EdgeOfTown) {
             "There is a pickup truck sitting along the road.";
-         }
+        }
     ],
     before [;
-    Go: if ((noun == e_obj || noun == w_obj) && p_past_edge_of_town == false) {
-            deadflag = 3;
-            if (noun == w_obj) {
-                "You start to walk back the way you came.  Before you get to far, you hear the young man behind you scream, 'There he is....old Jack...I've got him!'  
-                With that you barely hear the shot before the pumpkin atop your body explodes into a million pieces.";
-            } else if (noun == e_obj) {
-                "You come out from hiding and begin to approach the young man.  Before you take more than a few steps, he sees you and yells 'I found him....old Jack...he's right here.' 
-                He runs at you and before you can move, he embeds the machete into your pumpkin head.";  
+    Go: if ((noun == e_obj || noun == w_obj)) {
+            if (p_past_edge_of_town == false) {
+                deadflag = 3;
+                if (noun == w_obj) {
+                    "You start to walk back the way you came.  Before you get to far, you hear the young man behind you scream, 'There he is....old Jack...I've got him!'  
+                    With that you barely hear the shot before the pumpkin atop your body explodes into a million pieces.";
+                } else if (noun == e_obj) {
+                    "You come out from hiding and begin to approach the young man.  Before you take more than a few steps, he sees you and yells 'I found him....old Jack...he's right here.' 
+                    He runs at you and before you can move, he embeds the machete into your pumpkin head.";  
+                }
+            } else {
+                player.hiding = false;
             }
-
         }
     ];
 
@@ -471,7 +476,7 @@ Outdoors EdgeOfTown "Edge of Town"
                     if (parent(self) ofclass Enemy) {
                         "The young man holds the machete in his right hand slightly out in front of him.";
                     } else  {
-                        "A rusty machete, but still sharp enough it could have sliced through your pumpkin head.l";
+                        "A rusty machete, but still sharp enough it could have sliced through your pumpkin head.";
                     }
                 ];
 
@@ -484,7 +489,9 @@ Outdoors EdgeOfTown "Edge of Town"
                     } else {
                         print_ret "A .270 Winchester rifle.  Powerful enough to spread the pumpkin seeds in your head all over the road.";
                     }
-                ];
+                ],
+            has Weapon;
+            
 
         
 Outdoors TownSquare "Town Square"
@@ -493,10 +500,10 @@ Outdoors TownSquare "Town Square"
         n_to OldChurch,
         description [;
             if (self hasnt visited) {
+                shooter.hiding = true;
                 print "As you enter the town's center you hear a gunshot ring out.  The whistle of the slug as it passes near your head and the dust kicking up a 
                 few feet behind you are enough to send you scrambling to hide behind the fountain.^^";
             };
-            print shooter.Incapacitated();
             if (shooter.Incapacitated() == false) {
                 player.hiding = true;
                 shooter.shot_count++;
@@ -529,8 +536,8 @@ Outdoors TownSquare "Town Square"
         ];
 
 
-    Enemy ->  Shooter "shooter"
-            with name 'man' 'shooter' 'assassin' 'sniper' 'sam',
+    Enemy ->  Shooter "sniper"
+            with name 'man' 'shooter' 'assassin' 'sniper' 'sam' 'sniper',
             shot_count,
             turns_active,
             reloading,
@@ -545,9 +552,27 @@ Outdoors TownSquare "Town Square"
                     else 
                         "has is rifle aimed in your general direction.";
             ],
+        before [;
+            ShootingAt: if (shooter.Incapacitated() == false) {
+                            if (shooter.hiding) {
+                                print "You don't know which way to shoot....and you don't want to give away your position as they haven't found you yet.";
+                            } else {
+                                print "You take quick aim in the direction of the clock tower and pull the trigger.  When the flash from the shot clears, you 
+                                see the shooter slumping over the edge of the clocktower.";
+                                shooter.dead = true;
+                                shooter.hiding = false;
+                                myselfobj.hiding = false;
+                            }
+                        } else {
+                            if (shooter.dead) {
+                                print "He's already dead, no need to waste any more ammunition.";
+                            } else if (shooter.unconscious) {
+                                print "He's knocked out cold. You're not the monster that the townsfolk seem to think you are.";
+                            }
+                        }
+        ],
         daemon [;
             if (location ~= TownSquare) {
-                print location;
                 StopDaemon(self);
             }
             if (self.Incapacitated()) {
@@ -574,7 +599,8 @@ Outdoors TownSquare "Town Square"
                     }
                 }
             }
-        ];
+        ],
+        has male scenery;
     
     Props -> Fountain "fountain"
         with name 'fountain' 'water fountain',
@@ -609,7 +635,7 @@ Outdoors OldChurch "Outside Old Church"
         in_to Vestibule,
         description 
             "You are outside an old church.  The church has seen better years.  The entrance to the church is to the north.  Behind the church to the east you 
-             see a small overgrown cemetery.  The town square is back to the south.";
+            see a small overgrown cemetery.  The town square is back to the south.";
 
 Outdoors Cemetery "Cemetery"
     with
@@ -661,10 +687,10 @@ Indoors Altar "Altar"
 ];
 !- puts items that are carried by the Patroller in scope if the item has the class of ScopeWhenCarried
 [ InScope person i;
-  if (person == player && real_location == EdgeOfTown && Patroller.Incapacitated() == false)
-      objectloop (i in Patroller)
-          if (i ofclass ScopedWhenCarried) PlaceInScope(i);
-  rfalse;
+    if (person == player && real_location == EdgeOfTown && Patroller.Incapacitated() == false)
+        objectloop (i in Patroller)
+            if (i ofclass ScopedWhenCarried) PlaceInScope(i);
+    rfalse;
 ];
 
 [ChooseObjects  obj code;
@@ -745,6 +771,26 @@ Extend 'lie' first
         myselfobj.hiding = true;
         "You lie down in the ditch along the road.";
     }
+];
+
+!-- shoot
+
+Verb 'shoot' 'fire'
+    * noun -> ShootingAt
+    * 'at' noun -> ShootingAt
+    * noun 'with' Weapon -> ShootingAt reverse
+    * Weapon 'at' noun -> ShootingAt;
+
+[ ShootingAtSub; 
+    ! if (noun has weapon) {
+    !     print "shoot ", (name) noun;
+    !     if (second ~= nothing) {
+    !         print " at ", (name) second;
+    !     }
+    ! }
+    ! else {
+    !     print "shoot the ", (name) noun;
+    ! }
 ];
 
 !-- About
